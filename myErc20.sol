@@ -1,4 +1,8 @@
 /**
+ *Submitted for verification at Etherscan.io on 2022-11-30
+*/
+
+/**
  *Submitted for verification at Etherscan.io on 2022-06-06
 */
 
@@ -536,43 +540,34 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 }
 
 pragma solidity ^0.8.0;
-contract EfntToken is ERC20 {
-    constructor(uint256 initialSupply) ERC20("ENFT coin", "ENFT") {
+
+contract IDChats is ERC20 {
+    constructor(uint256 initialSupply) ERC20("IDChats", "IDC") {
         _mint(msg.sender, initialSupply);
         i_owner = msg.sender;
     }
-
-
-    mapping(address => uint256) public addressToAmountFunded;
-    address[] public funders;
-    address public /* immutable */ i_owner;
-
-    function fund() public payable {
-        require(msg.value>= 0, "You need to spend more ETH!");
-        addressToAmountFunded[msg.sender] += msg.value;
-        funders.push(msg.sender);
-    }
-
+    address public i_owner;
     modifier onlyOwner {
-
         require (msg.sender == i_owner,"not owner");
         _;
     }
-    function withdraw() public onlyOwner {
-        for (uint256 funderIndex=0; funderIndex < funders.length; funderIndex++){
-            address funder = funders[funderIndex];
-            addressToAmountFunded[funder] = 0;
-        }
-        funders = new address[](0);
+
+    function withdrawETH() external onlyOwner {
         (bool callSuccess, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(callSuccess, "Call failed");
     }
+
+    function transferOwnerShip(address newOwner) external onlyOwner{
+        require(newOwner != address(0), "new owner is the zero address");
+        i_owner  = newOwner;
+    }
+
     receive() external payable {
-        fund();
+
     }
 
     fallback() external payable {
-        fund();
+
     }
 
 }
